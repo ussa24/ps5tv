@@ -7,8 +7,9 @@ const PS5_UA = 'Mozilla/5.0 (PlayStation; PlayStation 5/14.10) AppleWebKit/605.1
 module.exports = defineConfig({
   testDir: './tests',
   timeout: 300000,
-  use: { baseURL: 'http://localhost:4173', viewport: { width: 1920, height: 1080 }, userAgent: PS5_UA },
-  webServer: { command: 'node tests/server.js', port: 4173, reuseExistingServer: true },
+  // BASE_URL=https://ussa24.github.io/ps5tv runs the suite against the deployed site.
+  use: { baseURL: process.env.BASE_URL || 'http://localhost:4173', viewport: { width: 1920, height: 1080 }, userAgent: PS5_UA },
+  webServer: process.env.BASE_URL ? undefined : { command: 'node tests/server.js', port: 4173, reuseExistingServer: true },
   projects: [
     { name: 'webkit-ps5', use: { browserName: 'webkit' } },
     // Edge ships H.264/AAC, so it checks that the playback tests pass when codecs exist.

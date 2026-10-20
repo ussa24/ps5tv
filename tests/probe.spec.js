@@ -14,7 +14,7 @@ test('probe completes and produces a decodable result', async ({ page }, info) =
   const errors = [];
   // WebKit reports the deliberate no-CORS probe of example.com as a page error; that one is expected.
   page.on('pageerror', e => { if (!/access control checks/.test(e.message)) errors.push(e.message); });
-  await page.goto('/probe/');
+  await page.goto('probe/');
   await expect(page.locator('#keysPanel')).toBeVisible({ timeout: 240000 });
 
   // Answer the controller prompts; sticks have no keyboard equivalent, so those steps time out (as on a pad-less run).
@@ -46,13 +46,13 @@ test('probe completes and produces a decodable result', async ({ page }, info) =
 
 test('second visit sees persisted marker and reuses controller results', async ({ page }) => {
   // Seed storage from the landing page (same origin) so a running probe can't overwrite the marker.
-  await page.goto('/');
+  await page.goto('./');
   await page.evaluate(() => {
     localStorage.setItem('ps5probe.marker', JSON.stringify({ t: '2026-01-01T00:00:00.000Z', n: 1 }));
     const steps = {}; ['up','down','left','right','x','sq','tri','l1','r1','l2','r2','opt','lsr','rsd','o'].forEach(k => steps[k] = { none: 1 });
     localStorage.setItem('ps5probe.keys', JSON.stringify({ v: 'p1', steps }));
   });
-  await page.goto('/probe/');
+  await page.goto('probe/');
   await expect(page.locator('#fsButtons')).toBeVisible({ timeout: 240000 });
   await page.locator('#skipBtn').click();
   await expect(page.locator('body')).toHaveAttribute('data-done', '1', { timeout: 30000 });
