@@ -1,0 +1,20 @@
+{
+  "name": "ps5tv",
+  "version": "1.0.0",
+  "description": "Live TV web player for the stock PS5 browser",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "hls.js": "1.7.3",
+    "mpegts.js": "1.8.2",
+    "qrcode-generator": "2.0.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1"
+  },
+  "private": true
+}

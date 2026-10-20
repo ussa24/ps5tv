@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PS5 TV Probe</title>
+<style>
+  :root {
+    --bg: #0b0d12; --panel: #151923; --line: #262c3a; --text: #eef1f7; --muted: #9aa3b5;
+    --ok: #3ddc84; --bad: #ff5d5d; --warn: #ffc24b; --accent: #5aa9ff;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font: 22px/1.35 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  body { padding: 40px 64px; min-height: 100vh; }
+  h1 { font-size: 40px; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 24px; }
+  .grid { display: flex; gap: 32px; align-items: flex-start; }
+  .col { flex: 1 1 0; min-width: 0; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 20px 24px; margin-bottom: 24px; }
+  .panel h2 { font-size: 24px; margin: 0 0 12px; color: var(--muted); font-weight: 600; letter-spacing: .02em; }
+  #log { list-style: none; margin: 0; padding: 0; max-height: 600px; overflow: hidden; }
+  #log li { padding: 4px 0; border-bottom: 1px solid var(--line); display: flex; gap: 12px; }
+  #log li:last-child { border-bottom: 0; }
+  .s { width: 28px; flex: none; font-weight: 700; }
+  .s.ok { color: var(--ok); } .s.bad { color: var(--bad); } .s.warn { color: var(--warn); } .s.run { color: var(--accent); }
+  .d { color: var(--muted); margin-left: auto; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55%; }
+  #stage { width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 10px; overflow: hidden; position: relative; }
+  #stage video { width: 100%; height: 100%; display: block; }
+  #prompt { font-size: 44px; font-weight: 700; text-align: center; padding: 28px 0; }
+  #prompt small { display: block; font-size: 22px; color: var(--muted); font-weight: 400; margin-top: 8px; }
+  #qrwrap { text-align: center; }
+  #qr { background: #fff; padding: 16px; border-radius: 10px; display: inline-block; }
+  #qr canvas { display: block; }
+  #qrinfo { color: var(--muted); margin-top: 10px; }
+  button.big { font: inherit; font-size: 26px; padding: 18px 32px; border-radius: 12px; border: 3px solid var(--accent); background: #1d2533; color: var(--text); margin: 8px 8px 0 0; }
+  button.big:focus { outline: 4px solid var(--warn); outline-offset: 3px; }
+  .hidden { display: none !important; }
+  #err { color: var(--bad); font-size: 18px; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+  <h1>PS5 TV Probe <span id="ver" style="color:var(--muted);font-size:24px"></span></h1>
+  <p class="sub" id="intro">Checking what this PS5 browser can do. Leave the controller alone for about 90 seconds, then follow the button prompts.</p>
+
+  <div class="grid">
+    <div class="col">
+      <div class="panel"><h2>Tests</h2><ul id="log"></ul></div>
+      <div id="err"></div>
+    </div>
+    <div class="col">
+      <div class="panel" id="stagePanel"><h2>Playback</h2><div id="stage"></div></div>
+      <div class="panel hidden" id="keysPanel"><h2>Controller test</h2><div id="prompt"></div>
+        <div id="fsButtons" class="hidden"><button class="big" id="fsBtn">Test fullscreen + sound</button><button class="big" id="skipBtn">Skip</button></div>
+      </div>
+      <div class="panel hidden" id="qrPanel"><h2>Results: scan with your phone</h2>
+        <div id="qrwrap"><div id="qr"></div><div id="qrinfo"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../vendor/qrcode-2.0.4.js"></script>
+  <script src="../vendor/hls-1.7.3.min.js"></script>
+  <script src="../vendor/mpegts-1.8.2.min.js"></script>
+  <script src="probe.js"></script>
+</body>
+</html>
