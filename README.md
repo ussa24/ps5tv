@@ -1,5 +1,7 @@
 # PS5 TV
 
+## ▶ [Open the PS5 probe](https://ussa24.github.io/ps5tv/probe/)
+
 A live-TV web player for the stock PS5 browser, driven by the DualSense. No jailbreak, no homebrew.
 
 **Status:** phase 2. Only the console probe is live; the player gets built from what the probe reports.
