@@ -30,6 +30,35 @@ for (const [name, ua] of Object.entries(UAS)) {
       expect(href).toMatch(/^https:\/\/(www\.)?google\.[a-z.]+\/?/);
     });
 
+    // Backup entry (Settings → Network → View PSN status) lands on Sony's status site; check it leads to a Google sign-in page.
+    test('PSN status page → Blog → YouTube → Google sign-in', async ({ page }) => {
+      await page.goto('https://status.playstation.com/');
+      const blog = page.getByRole('link', { name: 'Blog', exact: true }).first();
+      await expect(blog).toBeAttached({ timeout: 20000 });
+      const psHref = await blog.getAttribute('href');
+      await page.goto(psHref);
+      await expect(page).toHaveURL(/blog\.playstation\.com/);
+      const yt = page.locator('a[href*="youtube.com"]').first();
+      await expect(yt).toBeAttached({ timeout: 20000 });
+      const ytHref = await yt.getAttribute('href');
+      await page.goto(ytHref);
+      // In the EU YouTube first shows a cookie wall; its own "Terms" link reaches Google's Terms page without accepting
+      // anything. Elsewhere YouTube loads directly and its "Sign in" leads to the Google sign-in page instead.
+      // Both links are script-driven (no href), so they have to be clicked; they may open a new window.
+      const terms = page.getByRole('link', { name: /^(Terms|Sign in)$/ }).last();
+      await expect(terms).toBeVisible({ timeout: 20000 });
+      const label = (await terms.textContent()).trim();
+      let landed = null;
+      await expect(async () => {
+        await terms.click();
+        await expect.poll(() => {
+          landed = page.context().pages().find(p => /policies\.google\.com\/terms|accounts\.google\.com/.test(p.url())) || null;
+          return !!landed;
+        }, { timeout: 8000 }).toBe(true);
+      }).toPass({ timeout: 40000 });
+      console.log(name, 'status →', psHref, '→', ytHref, '→', label, '→', landed.url().slice(0, 50));
+    });
+
     test('github.com → search "ps5tv" → repo → Website link → probe', async ({ page }) => {
       await page.goto('https://github.com/');
       // Logged-out GitHub shows a search button that opens a "Quick search" dialog.
@@ -40,14 +69,26 @@ for (const [name, ua] of Object.entries(UAS)) {
       await expect(page).toHaveURL(/github\.com\/search/, { timeout: 20000 });
       const result = page.getByRole('link', { name: 'ussa24/ps5tv' }).first();
       await expect(result).toBeVisible({ timeout: 20000 });
-      await result.click();
-      await expect(page).toHaveURL(/github\.com\/ussa24\/ps5tv\/?$/, { timeout: 20000 });
+      // GitHub's search page can swallow a click made before its scripts finish loading; click again like a person would.
+      await expect(async () => {
+        await result.click();
+        await expect(page).toHaveURL(/github\.com\/ussa24\/ps5tv\/?$/, { timeout: 5000 });
+      }).toPass({ timeout: 30000 });
       // GitHub renders the About box twice (wide and narrow layouts); take the visible copy.
       const site = page.locator('a[href="https://ussa24.github.io/ps5tv/probe/"]').filter({ visible: true }).first();
       await expect(site).toBeVisible({ timeout: 20000 });
-      await site.click();
-      await expect(page).toHaveTitle('PS5 TV Probe', { timeout: 20000 });
-      console.log(name, 'reached', page.url());
+      // The link has target=_blank: desktop WebKit may open a new tab, the single-window PS5 browser likely won't.
+      // Same as above, the first click can come before GitHub's scripts are ready, so retry until a window shows the probe.
+      let landed = null;
+      await expect(async () => {
+        await site.click();
+        await expect.poll(() => {
+          landed = page.context().pages().find(p => /ussa24\.github\.io\/ps5tv\/probe/.test(p.url())) || null;
+          return !!landed;
+        }, { timeout: 8000 }).toBe(true);
+      }).toPass({ timeout: 40000 });
+      await expect(landed).toHaveTitle('PS5 TV Probe', { timeout: 20000 });
+      console.log(name, 'reached', landed.url(), landed === page ? '(same window)' : '(new window)');
     });
   });
 }

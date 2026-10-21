@@ -572,7 +572,7 @@
     function show() {
       drawQR(parts[cur]);
       info.textContent = (parts.length > 1 ? 'Code ' + (cur + 1) + ' of ' + parts.length + ' (press R1 / → for next) · ' : '') +
-        'Scan with the phone camera, copy the text, paste it to Claude.' + (R.visit === 1 ? ' Then fully restart the PS5 and open this link again.' : '');
+        'Scan with the phone camera, copy the text, paste it to Claude.' + (R.visit === 1 ? ' Then restart the PS5 and open this page again the same way.' : '');
     }
     document.addEventListener('keydown', function (e) {
       if (parts.length < 2) return;
